@@ -1,32 +1,40 @@
 import { useState } from 'react';
-import Dropzone from './COMPONENTS/Dropzone';
+import './App.css';
 import ChatWindow from './COMPONENTS/ChatWindow';
+import Dropzone from './COMPONENTS/Dropzone';
 import SourcePanel from './COMPONENTS/SourcePanel';
 
 function App() {
-  // Ces données seront remplies par l'IA plus tard
-  const [sources, setSources] = useState([]); 
+  const [documentFile, setDocumentFile] = useState(null);
+  const [sources, setSources] = useState([]);
+
+  const handleFileSelected = (file) => {
+    setDocumentFile(file);
+    setSources([]);
+  };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-      
-      {/* Colonne principale (Centre) */}
-      <div style={{ flex: 1, marginRight: '300px', padding: '40px' }}>
-        <header style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '2.5rem', color: '#1c1e21' }}>📄 Assistant PDF Intelligent</h1>
-          <p style={{ color: '#606770' }}>Système RAG (Retrieval-Augmented Generation)</p>
+    <main className="app-shell">
+      <section className="workspace" aria-label="Assistant PDF">
+        <header className="app-header">
+          <div>
+            <p className="eyebrow">Prototype frontend</p>
+            <h1>Assistant PDF Intelligent</h1>
+          </div>
+          <div className="status-pill" data-ready={documentFile ? 'true' : 'false'}>
+            {documentFile ? 'PDF pret' : 'En attente du PDF'}
+          </div>
         </header>
 
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <Dropzone />
-          <ChatWindow setSources={setSources} />
-        </div>
-      </div>
+        <Dropzone file={documentFile} onFileSelected={handleFileSelected} />
+        <ChatWindow
+          documentFile={documentFile}
+          onSourcesChange={setSources}
+        />
+      </section>
 
-      {/* Panneau des Sources (Côté droit) */}
       <SourcePanel sources={sources} />
-
-    </div>
+    </main>
   );
 }
 
