@@ -1,11 +1,11 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import uuid
 
 import os
-from backend.config import GROQ_MODEL, VECTOR_STORE_PATH
+from config import GROQ_MODEL, VECTOR_STORE_PATH
 from ingestor import ingest
 from retriever import retrieve
 from generator import generate
@@ -27,6 +27,14 @@ async def upload_pdf(file: UploadFile = File(...)):
 
 @app.post("/query")
 async def query(req : QueryRequest):
+    try:
+        uuid.UUID(req.doc_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid doc_id. Use the doc_id returned by /upload, not the question text.",
+        ) from exc
+
     chunks = retrieve(req.question, req.doc_id)
     answer = await generate(req.question, chunks)
     return {"answer": answer, "sources": chunks}
