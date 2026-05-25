@@ -12,7 +12,7 @@ load_dotenv()
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-class Queryrequest(BaseModel):
+class QueryRequest(BaseModel):
     question : str
     doc_id: str
 
@@ -24,7 +24,7 @@ async def upload_pdf(file: UploadFile = File(...)):
     return {"doc_id": doc_id, "chunks": n_chunks, "filename": file.filename }
 
 @app.post("/query")
-async def query(req : Queryrequest):
+async def query(req : QueryRequest):
     chunks = retrieve(req.question, req.doc_id)
-    answer = generate(req.question, chunks)
+    answer = await generate(req.question, chunks)
     return {"answer": answer, "sources": chunks}
