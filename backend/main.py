@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import uuid
 
+import os
+from backend.config import GROQ_MODEL, VECTOR_STORE_PATH
 from ingestor import ingest
 from retriever import retrieve
 from generator import generate
@@ -28,3 +30,18 @@ async def query(req : QueryRequest):
     chunks = retrieve(req.question, req.doc_id)
     answer = await generate(req.question, chunks)
     return {"answer": answer, "sources": chunks}
+
+@app.get("/documents")
+def list_documents():
+    if not os.path.exists(VECTOR_STORE_PATH):
+        return {"documents": []}
+    docs = [
+        f.replace(".index", "")
+        for f in os.listdir(VECTOR_STORE_PATH)
+        if f.endswith(".index")
+    ]
+    return {"documents": docs}
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "model": GROQ_MODEL}
