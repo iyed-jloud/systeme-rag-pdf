@@ -2,6 +2,9 @@ import { useState } from 'react';
 import Dropzone from './COMPONENTS/Dropzone';
 import ChatWindow from './COMPONENTS/ChatWindow';
 import SourcePanel from './COMPONENTS/SourcePanel';
+import './App.css'; // Ajoute cette ligne ici
+import { useState } from 'react';
+// ... tes autres imports
 
 function App() {
   // This data will be populated by the AI later
