@@ -1,40 +1,32 @@
 import { useState } from 'react';
-import './App.css';
-import ChatWindow from './COMPONENTS/ChatWindow';
 import Dropzone from './COMPONENTS/Dropzone';
+import ChatWindow from './COMPONENTS/ChatWindow';
 import SourcePanel from './COMPONENTS/SourcePanel';
 
 function App() {
-  const [documentFile, setDocumentFile] = useState(null);
-  const [sources, setSources] = useState([]);
-
-  const handleFileSelected = (file) => {
-    setDocumentFile(file);
-    setSources([]);
-  };
+  // This data will be populated by the AI later
+  const [sources, setSources] = useState([]); 
 
   return (
-    <main className="app-shell">
-      <section className="workspace" aria-label="Assistant PDF">
-        <header className="app-header">
-          <div>
-            <p className="eyebrow">Prototype frontend</p>
-            <h1>Assistant PDF Intelligent</h1>
-          </div>
-          <div className="status-pill" data-ready={documentFile ? 'true' : 'false'}>
-            {documentFile ? 'PDF pret' : 'En attente du PDF'}
-          </div>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+      
+      {/* Main Column (Center) */}
+      <div style={{ flex: 1, marginRight: '300px', padding: '40px' }}>
+        <header style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <h1 style={{ fontSize: '2.5rem', color: '#1c1e21' }}>📄 Intelligent PDF Assistant</h1>
+          <p style={{ color: '#606770' }}>RAG System (Retrieval-Augmented Generation)</p>
         </header>
 
-        <Dropzone file={documentFile} onFileSelected={handleFileSelected} />
-        <ChatWindow
-          documentFile={documentFile}
-          onSourcesChange={setSources}
-        />
-      </section>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <Dropzone />
+          <ChatWindow setSources={setSources} />
+        </div>
+      </div>
 
+      {/* Source Panel (Right Side) */}
       <SourcePanel sources={sources} />
-    </main>
+
+    </div>
   );
 }
 
