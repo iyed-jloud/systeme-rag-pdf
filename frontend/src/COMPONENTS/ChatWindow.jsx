@@ -1,99 +1,135 @@
 import { useState } from 'react';
-import MessageBubble from './MessageBubble';
 
-function buildMockSources(question, fileName) {
-  const cleanQuestion = question.replace(/\s+/g, ' ').trim();
-
-  return [
-    {
-      text: `Extrait simule depuis ${fileName}: passage lie a "${cleanQuestion}".`,
-      page: 1,
-    },
-    {
-      text: 'Deuxieme extrait de test pour verifier le panneau des sources avant le branchement API.',
-      page: 2,
-    },
-  ];
-}
-
-function ChatWindow({ documentFile, onSourcesChange }) {
+function ChatWindow({ setSources }) {
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const [isThinking, setIsThinking] = useState(false);
+  const [input, setInput] = useState("");
 
   const handleSend = () => {
-    const question = input.trim();
+    // Do nothing if the input is empty
+    if (!input.trim()) return;
 
-    if (!question || isThinking || !documentFile) return;
+    // Add user's question to the list
+    const newMessages = [...messages, { sender: 'user', text: input }];
+    setMessages(newMessages);
+    setInput(""); // Clear input field
 
-    const userMessage = { id: crypto.randomUUID(), sender: 'user', text: question };
-    setMessages((current) => [...current, userMessage]);
-    setInput('');
-    setIsThinking(true);
-
-    window.setTimeout(() => {
-      const mockSources = buildMockSources(question, documentFile.name);
-      const assistantMessage = {
-        id: crypto.randomUUID(),
-        sender: 'assistant',
-        text: `Reponse simulee pour "${question}". Le PDF est bien selectionne et le chat est pret pour le branchement backend.`,
-      };
-
-      setMessages((current) => [...current, assistantMessage]);
-      onSourcesChange(mockSources);
-      setIsThinking(false);
-    }, 500);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') handleSend();
+    // Simulate AI response (to be replaced by real API call)
+    setTimeout(() => {
+      setMessages([...newMessages, 
+        { sender: 'ia', text: "This is a simulated response. The AI backend is not yet connected!" }
+      ]);
+    }, 1000);
   };
 
   return (
-    <section className="chat-panel" aria-label="Discussion avec le PDF">
-      <div className="panel-heading">
-        <h2>Questions</h2>
-        <span>{messages.length} message{messages.length > 1 ? 's' : ''}</span>
-      </div>
-
-      <div className="message-list">
+    <div style={styles.chatContainer}>
+      <h3 style={styles.header}>💬 Ask your questions</h3>
+      
+      {/* Message display area */}
+      <div style={styles.messageList}>
         {messages.length === 0 ? (
-          <p className="empty-state">
-            {documentFile
-              ? 'Posez une premiere question pour tester la reponse simulee.'
-              : 'Chargez un PDF pour activer le chat.'}
-          </p>
+          <p style={{ textAlign: 'center', color: '#94a3b8', marginTop: '40px' }}>No messages yet. Ask your first question!</p>
         ) : (
-          messages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              sender={message.sender}
-              text={message.text}
-            />
+          messages.map((msg, index) => (
+            <div key={index} style={msg.sender === 'user' ? styles.userMsg : styles.iaMsg}>
+              <strong style={{ display: 'block', fontSize: '0.8rem', marginBottom: '4px', opacity: 0.8 }}>
+                {msg.sender === 'user' ? 'You' : 'AI Assistant'}
+              </strong>
+              {msg.text}
+            </div>
           ))
         )}
-        {isThinking && <MessageBubble sender="assistant" text="Generation en cours..." />}
       </div>
-
-      <div className="composer">
-        <input
-          type="text"
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={documentFile ? 'Que voulez-vous savoir sur ce document ?' : 'Chargez un PDF pour commencer'}
-          disabled={!documentFile || isThinking}
+      
+      {/* Input area */}
+      <div style={styles.inputArea}>
+        <input 
+          type="text" 
+          value={input} 
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="What would you like to know about this document?"
+          style={styles.input}
+          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
         />
-        <button
-          type="button"
-          onClick={handleSend}
-          disabled={!documentFile || !input.trim() || isThinking}
-        >
-          Envoyer
-        </button>
+        <button onClick={handleSend} style={styles.button}>Send</button>
       </div>
-    </section>
+    </div>
   );
 }
+
+// Styling premium et sans scroll global
+const styles = {
+  chatContainer: { 
+    display: 'flex', 
+    flexDirection: 'column', 
+    height: '100%', // Prend toute la place allouée par App.jsx
+    backgroundColor: 'white', 
+    borderRadius: '12px', 
+    padding: '20px', 
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    border: '1px solid #e2e8f0'
+  },
+  header: {
+    margin: '0 0 15px 0',
+    color: '#1e293b',
+    fontSize: '1.2rem'
+  },
+  messageList: { 
+    flex: 1, // La liste prend tout l'espace disponible
+    overflowY: 'auto', // Seule cette zone scrolle
+    marginBottom: '15px', 
+    padding: '15px', 
+    backgroundColor: '#f8fafc', 
+    borderRadius: '8px',
+    border: '1px inset #f1f5f9'
+  },
+  // Design des bulles façon iMessage / ChatGPT
+  userMsg: { 
+    backgroundColor: '#007bff', 
+    color: 'white', 
+    padding: '12px 16px', 
+    borderRadius: '16px 16px 0 16px', // Pointe vers le bas à droite
+    marginBottom: '12px', 
+    textAlign: 'left', 
+    marginLeft: 'auto',
+    maxWidth: '80%',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  },
+  iaMsg: { 
+    backgroundColor: '#e2e8f0', 
+    color: '#1e293b', 
+    padding: '12px 16px', 
+    borderRadius: '16px 16px 16px 0', // Pointe vers le bas à gauche
+    marginBottom: '12px', 
+    textAlign: 'left', 
+    marginRight: 'auto',
+    maxWidth: '80%',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+  },
+  inputArea: { 
+    display: 'flex', 
+    gap: '10px',
+    paddingTop: '10px',
+    borderTop: '1px solid #f1f5f9' 
+  },
+  input: { 
+    flex: 1, 
+    padding: '12px 15px', 
+    borderRadius: '8px', 
+    border: '1px solid #cbd5e1',
+    outline: 'none',
+    fontSize: '0.95rem'
+  },
+  button: { 
+    padding: '10px 24px', 
+    borderRadius: '8px', 
+    backgroundColor: '#007bff', 
+    color: 'white', 
+    border: 'none', 
+    cursor: 'pointer', 
+    fontWeight: '600',
+    transition: 'background-color 0.2s'
+  }
+};
 
 export default ChatWindow;

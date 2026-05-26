@@ -4,7 +4,8 @@ async function parseResponse(response) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const message = data?.detail || data?.message || 'La requete API a echoue.';
+    // TRADUCTION ICI : "La requete API a echoue." devient "API request failed."
+    const message = data?.detail || data?.message || 'API request failed.';
     throw new Error(message);
   }
 
@@ -24,15 +25,15 @@ export const api = {
     return parseResponse(response);
   },
 
-  askQuestion: async (docId, question) => {
-    const response = await fetch(`${API_BASE_URL}/ask`, {
+  askQuestion: async (docId, userQuestion) => {
+    const response = await fetch(`${API_BASE_URL}/query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        document_id: docId,
-        query: question,
+        doc_id: docId,
+        question: userQuestion,
       }),
     });
 
