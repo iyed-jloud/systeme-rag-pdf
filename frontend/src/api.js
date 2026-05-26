@@ -4,7 +4,8 @@ async function parseResponse(response) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const message = data?.detail || data?.message || 'La requete API a echoue.';
+    // TRADUCTION ICI : "La requete API a echoue." devient "API request failed."
+    const message = data?.detail || data?.message || 'API request failed.';
     throw new Error(message);
   }
 
@@ -25,13 +26,11 @@ export const api = {
   },
 
   askQuestion: async (docId, userQuestion) => {
-    // CORRECTION 1 : L'adresse est maintenant /query (comme dans le main.py)
     const response = await fetch(`${API_BASE_URL}/query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      // CORRECTION 2 : Les noms des variables correspondent exactement au backend
       body: JSON.stringify({
         doc_id: docId,
         question: userQuestion,
