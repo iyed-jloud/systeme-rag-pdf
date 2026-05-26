@@ -4,11 +4,9 @@ import pickle
 import faiss
 import numpy as np
 from fastapi import HTTPException
-from sentence_transformers import SentenceTransformer
 
-from config import EMBED_MODEL, TOP_K, VECTOR_STORE_PATH
-
-model = SentenceTransformer(EMBED_MODEL)
+from config import TOP_K, VECTOR_STORE_PATH
+from embedding_model import get_embedding_model
 
 
 def retrieve(query: str, session_id: str) -> list[dict]:
@@ -25,6 +23,7 @@ def retrieve(query: str, session_id: str) -> list[dict]:
     with open(chunks_path, "rb") as f:
         chunks = pickle.load(f)
 
+    model = get_embedding_model()
     q_vec = model.encode([query], normalize_embeddings=True)
     scores, indices = index.search(np.asarray(q_vec, dtype="float32"), TOP_K)
 
@@ -41,6 +40,7 @@ def retrieve(query: str, session_id: str) -> list[dict]:
             {
                 "text": chunk["text"],
                 "source": chunk.get("source") or "Unknown PDF",
+                "document_id": chunk.get("document_id"),
                 "page": chunk.get("page"),
                 "score": float(scores[0][rank]),
             }

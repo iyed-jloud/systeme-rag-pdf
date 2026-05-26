@@ -217,6 +217,11 @@ button:disabled {
   background: var(--primary-dark);
 }
 
+.primary-button.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .primary-button input {
   display: none;
 }
@@ -237,9 +242,11 @@ button:disabled {
   overflow: hidden;
 }
 
-.document-stack span {
+.document-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   max-width: 180px;
-  overflow: hidden;
   padding: 6px 9px;
   color: #334155;
   background: #f1f5f9;
@@ -247,8 +254,34 @@ button:disabled {
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+.document-name {
+  min-width: 0;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.document-stack button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  padding: 0;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.document-stack button:hover {
+  color: #ffffff;
+  background: var(--danger);
+  border-color: var(--danger);
 }
 
 .chat-panel {

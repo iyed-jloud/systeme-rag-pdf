@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { api } from '../api';
 
-function Dropzone({ sessionId, documents, onUploadComplete }) {
+const MAX_PDFS = 5;
+const MAX_UPLOAD_BYTES = 200 * 1024 * 1024;
+
+function Dropzone({ sessionId, documents, onUploadComplete, onDocumentRemoved }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [removingDocumentId, setRemovingDocumentId] = useState('');
   const [uploadResult, setUploadResult] = useState(null);
   const [error, setError] = useState('');
 
@@ -11,8 +15,18 @@ function Dropzone({ sessionId, documents, onUploadComplete }) {
     setError('');
     setUploadResult(null);
 
+    if (documents.length >= MAX_PDFS) {
+      setError(`You can upload up to ${MAX_PDFS} PDFs per session.`);
+      return;
+    }
+
     if (!selectedFile || selectedFile.type !== 'application/pdf') {
       setError('Please select a valid PDF file.');
+      return;
+    }
+
+    if (selectedFile.size > MAX_UPLOAD_BYTES) {
+      setError('PDF is too large. Maximum upload size is 200 MB.');
       return;
     }
 
@@ -31,6 +45,7 @@ function Dropzone({ sessionId, documents, onUploadComplete }) {
 
   const handleFileChange = (event) => {
     uploadFile(event.target.files[0]);
+    event.target.value = '';
   };
 
   const handleDrop = (event) => {
@@ -38,6 +53,24 @@ function Dropzone({ sessionId, documents, onUploadComplete }) {
     setIsHovered(false);
     uploadFile(event.dataTransfer.files[0]);
   };
+
+  const handleRemoveDocument = async (documentId) => {
+    setError('');
+    setRemovingDocumentId(documentId);
+
+    try {
+      await api.removeDocument(sessionId, documentId);
+      onDocumentRemoved?.(documentId);
+      setUploadResult(null);
+    } catch (err) {
+      setError(err.message || 'Could not remove this PDF.');
+    } finally {
+      setRemovingDocumentId('');
+    }
+  };
+
+  const isAtLimit = documents.length >= MAX_PDFS;
+  const isUploadDisabled = isUploading || isAtLimit;
 
   return (
     <div
@@ -56,25 +89,35 @@ function Dropzone({ sessionId, documents, onUploadComplete }) {
           <p>
             {uploadResult
               ? `${uploadResult.filename} added with ${uploadResult.chunks} chunks`
-              : 'Drop another PDF or choose one from your computer.'}
+              : `${MAX_PDFS} PDFs max, 200 MB each.`}
           </p>
         </div>
       </div>
 
-      <label className="primary-button">
-        {isUploading ? 'Uploading...' : documents.length ? 'Add PDF' : 'Choose file'}
+      <label className={`primary-button ${isUploadDisabled ? 'is-disabled' : ''}`}>
+        {isUploading ? 'Uploading...' : isAtLimit ? 'Limit reached' : documents.length ? 'Add PDF' : 'Choose file'}
         <input
           type="file"
           accept=".pdf"
           onChange={handleFileChange}
-          disabled={isUploading}
+          disabled={isUploadDisabled}
         />
       </label>
 
       {documents.length > 0 && (
         <div className="document-stack">
-          {documents.slice(-3).map((doc, index) => (
-            <span key={`${doc.filename}-${doc.total_chunks}-${index}`}>{doc.filename}</span>
+          {documents.map((doc, index) => (
+            <div className="document-chip" key={doc.document_id || `${doc.filename}-${index}`}>
+              <span className="document-name">{doc.filename}</span>
+              <button
+                type="button"
+                aria-label={`Remove ${doc.filename}`}
+                disabled={removingDocumentId === doc.document_id}
+                onClick={() => handleRemoveDocument(doc.document_id)}
+              >
+                x
+              </button>
+            </div>
           ))}
         </div>
       )}

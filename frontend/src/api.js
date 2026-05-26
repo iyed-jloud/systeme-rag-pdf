@@ -26,6 +26,14 @@ export const api = {
     return parseResponse(response);
   },
 
+  removeDocument: async (sessionId, documentId) => {
+    const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/documents/${documentId}`, {
+      method: 'DELETE',
+    });
+
+    return parseResponse(response);
+  },
+
   askQuestion: async (sessionId, userQuestion) => {
     const response = await fetch(`${API_BASE_URL}/query`, {
       method: 'POST',

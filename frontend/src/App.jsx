@@ -20,6 +20,16 @@ function App() {
     setSources(safeSources);
   };
 
+  const handleDocumentRemoved = (documentId) => {
+    setDocuments((currentDocuments) =>
+      currentDocuments.filter((document) => document.document_id !== documentId)
+    );
+    setSources((currentSources) =>
+      currentSources.filter((source) => source.document_id !== documentId)
+    );
+    setIsSourcePanelOpen(false);
+  };
+
   return (
     <div className="app-shell">
       <main className="workspace">
@@ -44,6 +54,7 @@ function App() {
           <Dropzone
             sessionId={sessionId}
             documents={documents}
+            onDocumentRemoved={handleDocumentRemoved}
             onUploadComplete={(uploadedDocument) => {
               setDocuments((currentDocuments) => [...currentDocuments, uploadedDocument]);
               setSources([]);
