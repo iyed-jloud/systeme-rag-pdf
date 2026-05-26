@@ -6,8 +6,14 @@ import SourcePanel from './COMPONENTS/SourcePanel';
 
 function App() {
   const [sources, setSources] = useState([]);
-  const [document, setDocument] = useState(null);
+  const [documents, setDocuments] = useState([]);
   const [isSourcePanelOpen, setIsSourcePanelOpen] = useState(false);
+  const [sessionId] = useState(() => {
+    if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+    return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (char) =>
+      (Number(char) ^ (Math.random() * 16) >> (Number(char) / 4)).toString(16)
+    );
+  });
 
   const handleSourcesChange = (nextSources) => {
     const safeSources = nextSources || [];
@@ -36,8 +42,10 @@ function App() {
 
         <section className="upload-strip">
           <Dropzone
+            sessionId={sessionId}
+            documents={documents}
             onUploadComplete={(uploadedDocument) => {
-              setDocument(uploadedDocument);
+              setDocuments((currentDocuments) => [...currentDocuments, uploadedDocument]);
               setSources([]);
               setIsSourcePanelOpen(false);
             }}
@@ -45,7 +53,11 @@ function App() {
         </section>
 
         <section className="chat-stage">
-          <ChatWindow document={document} setSources={handleSourcesChange} />
+          <ChatWindow
+            documents={documents}
+            sessionId={sessionId}
+            setSources={handleSourcesChange}
+          />
         </section>
       </main>
 

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -16,26 +16,35 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 class QueryRequest(BaseModel):
     question : str
-    doc_id: str
+    session_id: str
 
 @app.post("/upload")
-async def upload_pdf(file: UploadFile = File(...)):
-    doc_id = str(uuid.uuid4())
+async def upload_pdf(session_id: str = Form(...), file: UploadFile = File(...)):
+    try:
+        uuid.UUID(session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail="Invalid session_id.") from exc
+
     content = await file.read()
-    n_chunks = ingest(content, doc_id)
-    return {"doc_id": doc_id, "chunks": n_chunks, "filename": file.filename }
+    result = ingest(content, session_id, file.filename or "uploaded.pdf")
+    return {
+        "session_id": session_id,
+        "filename": file.filename,
+        "chunks": result["chunks_added"],
+        "total_chunks": result["total_chunks"],
+    }
 
 @app.post("/query")
 async def query(req : QueryRequest):
     try:
-        uuid.UUID(req.doc_id)
+        uuid.UUID(req.session_id)
     except ValueError as exc:
         raise HTTPException(
             status_code=422,
-            detail="Invalid doc_id. Use the doc_id returned by /upload, not the question text.",
+            detail="Invalid session_id. Use the session_id created by the frontend.",
         ) from exc
 
-    chunks = retrieve(req.question, req.doc_id)
+    chunks = retrieve(req.question, req.session_id)
     answer = await generate(req.question, chunks)
     return {"answer": answer, "sources": chunks}
 

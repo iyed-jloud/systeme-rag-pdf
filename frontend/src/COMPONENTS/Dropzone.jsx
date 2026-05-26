@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api';
 
-function Dropzone({ onUploadComplete }) {
-  const [file, setFile] = useState(null);
+function Dropzone({ sessionId, documents, onUploadComplete }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
@@ -13,20 +12,17 @@ function Dropzone({ onUploadComplete }) {
     setUploadResult(null);
 
     if (!selectedFile || selectedFile.type !== 'application/pdf') {
-      setFile(null);
       setError('Please select a valid PDF file.');
       return;
     }
 
-    setFile(selectedFile);
     setIsUploading(true);
 
     try {
-      const result = await api.uploadFile(selectedFile);
+      const result = await api.uploadFile(sessionId, selectedFile);
       setUploadResult(result);
       onUploadComplete?.(result);
     } catch (err) {
-      setFile(null);
       setError(err.message || 'Could not upload this PDF.');
     } finally {
       setIsUploading(false);
@@ -56,17 +52,17 @@ function Dropzone({ onUploadComplete }) {
       <div className="dropzone-copy">
         <span className="file-chip">PDF</span>
         <div>
-          <h2>{file?.name || 'Upload a PDF'}</h2>
+          <h2>{documents.length ? `${documents.length} PDFs indexed` : 'Upload PDFs'}</h2>
           <p>
             {uploadResult
-              ? `${uploadResult.chunks} chunks indexed`
-              : 'Drop a file here or choose one from your computer.'}
+              ? `${uploadResult.filename} added with ${uploadResult.chunks} chunks`
+              : 'Drop another PDF or choose one from your computer.'}
           </p>
         </div>
       </div>
 
       <label className="primary-button">
-        {isUploading ? 'Uploading...' : file ? 'Replace' : 'Choose file'}
+        {isUploading ? 'Uploading...' : documents.length ? 'Add PDF' : 'Choose file'}
         <input
           type="file"
           accept=".pdf"
@@ -74,6 +70,14 @@ function Dropzone({ onUploadComplete }) {
           disabled={isUploading}
         />
       </label>
+
+      {documents.length > 0 && (
+        <div className="document-stack">
+          {documents.slice(-3).map((doc, index) => (
+            <span key={`${doc.filename}-${doc.total_chunks}-${index}`}>{doc.filename}</span>
+          ))}
+        </div>
+      )}
 
       {error && <p className="upload-error">{error}</p>}
     </div>

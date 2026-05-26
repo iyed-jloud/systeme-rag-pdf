@@ -20,8 +20,9 @@ function SourcePanel({ sources, isOpen, onClose }) {
 
         <div className="source-list">
           {sources.map((src, index) => (
-            <article className="source-card" key={`${src.page || 'source'}-${index}`}>
+            <article className="source-card" key={`${src.source || 'source'}-${src.page || index}-${index}`}>
               <span>Excerpt {index + 1}</span>
+              <strong>{src.source || 'Unknown PDF'}</strong>
               <p>{src.text}</p>
               {src.page && <small>Page {src.page}</small>}
             </article>

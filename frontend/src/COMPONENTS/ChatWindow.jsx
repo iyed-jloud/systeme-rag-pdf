@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api';
 
-function ChatWindow({ document, setSources }) {
+function ChatWindow({ documents, sessionId, setSources }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -10,10 +10,10 @@ function ChatWindow({ document, setSources }) {
     const question = input.trim();
     if (!question || isLoading) return;
 
-    if (!document?.doc_id) {
+    if (documents.length === 0) {
       setMessages((currentMessages) => [
         ...currentMessages,
-        { sender: 'ia', text: 'Upload a PDF first, then ask your question.' },
+        { sender: 'ia', text: 'Upload one or more PDFs first, then ask your question.' },
       ]);
       return;
     }
@@ -24,7 +24,7 @@ function ChatWindow({ document, setSources }) {
     setIsLoading(true);
 
     try {
-      const response = await api.askQuestion(document.doc_id, question);
+      const response = await api.askQuestion(sessionId, question);
       setSources(response.sources || []);
       setMessages([
         ...newMessages,
@@ -45,15 +45,19 @@ function ChatWindow({ document, setSources }) {
       <div className="chat-header">
         <div>
           <h2>Chat</h2>
-          <p>{document?.filename || 'No document selected'}</p>
+          <p>
+            {documents.length
+              ? `${documents.length} PDF${documents.length === 1 ? '' : 's'} in this session`
+              : 'No PDFs selected'}
+          </p>
         </div>
       </div>
 
       <div className="message-list">
         {messages.length === 0 ? (
           <div className="empty-chat">
-            <h3>Ask anything about the uploaded PDF.</h3>
-            <p>Your answers and cited excerpts will stay together in this workspace.</p>
+            <h3>Ask across every uploaded PDF.</h3>
+            <p>Answers can cite the exact file and page that supplied each excerpt.</p>
           </div>
         ) : (
           messages.map((msg, index) => (

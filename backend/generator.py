@@ -8,9 +8,18 @@ from config import GROQ_MODEL
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 def build_prompt(question: str, chunks: list[dict]) -> str:
-    context = "\n\n---\n\n".join(c["text"] for c in chunks)
+    context_blocks = []
+    for chunk in chunks:
+        page = f", page {chunk['page']}" if chunk.get("page") else ""
+        context_blocks.append(
+            f"Source: {chunk.get('source', 'Unknown PDF')}{page}\n{chunk['text']}"
+        )
+
+    context = "\n\n---\n\n".join(context_blocks)
     return f"""You are a precise assistant. Answer ONLY using the context below.
-If the answer is not in the context, say "I couldn't find that in the document."
+When the answer uses evidence from a PDF, name the source file in the answer.
+If sources disagree, explain the difference and cite each source file.
+If the answer is not in the context, say "I couldn't find that in the uploaded PDFs."
 
 CONTEXT:
 {context}
