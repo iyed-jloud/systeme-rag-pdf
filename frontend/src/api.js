@@ -24,15 +24,17 @@ export const api = {
     return parseResponse(response);
   },
 
-  askQuestion: async (docId, question) => {
-    const response = await fetch(`${API_BASE_URL}/ask`, {
+  askQuestion: async (docId, userQuestion) => {
+    // CORRECTION 1 : L'adresse est maintenant /query (comme dans le main.py)
+    const response = await fetch(`${API_BASE_URL}/query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      // CORRECTION 2 : Les noms des variables correspondent exactement au backend
       body: JSON.stringify({
-        document_id: docId,
-        query: question,
+        doc_id: docId,
+        question: userQuestion,
       }),
     });
 
