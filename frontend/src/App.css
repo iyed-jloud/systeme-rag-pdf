@@ -1,54 +1,52 @@
-/* Importation de la police professionnelle Inter */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 :root {
   --primary: #007bff;
-  --primary-hover: #0056b3;
-  --bg-main: #f4f7fb;
-  --text-dark: #1e293b;
-  --text-light: #64748b;
-  --white: #ffffff;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-  --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
-  --radius: 12px;
+  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --glass: rgba(255, 255, 255, 0.8);
+  --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
 * {
-  font-family: 'Inter', sans-serif;
   box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
   margin: 0;
-  background-color: var(--bg-main);
-  color: var(--text-dark);
+  padding: 0;
+  /* Fond moderne et doux */
+  background: #f0f2f5;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(210,100%,90%,1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,100%,90%,1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,100%,90%,1) 0, transparent 50%);
+  height: 100vh;
+  overflow: hidden; /* Empêche le scroll global du site */
 }
 
-/* --- ANIMATIONS --- */
-
-/* Apparition en douceur (Fade In) */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Animations de séquence */
+.reveal {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease forwards;
 }
 
-/* Effet de pulsation pour l'IA qui "réfléchit" */
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-  100% { transform: scale(1); opacity: 1; }
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.5s; }
+.delay-3 { animation-delay: 0.8s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Animation d'entrée pour les sources */
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-.pulse {
-  animation: pulse 2s infinite ease-in-out;
-}
+/* Scrollbar élégante pour la zone de chat */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
