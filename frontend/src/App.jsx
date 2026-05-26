@@ -5,7 +5,8 @@ import ChatWindow from './COMPONENTS/ChatWindow';
 import SourcePanel from './COMPONENTS/SourcePanel';
 
 function App() {
-  const [sources, setSources] = useState([]); 
+  const [sources, setSources] = useState([]);
+  const [document, setDocument] = useState(null);
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
@@ -30,12 +31,17 @@ function App() {
 
         {/* DROPZONE - Apparaît en deuxième (delay-2) */}
         <div className="reveal delay-2" style={{ marginBottom: '20px' }}>
-          <Dropzone />
+          <Dropzone
+            onUploadComplete={(uploadedDocument) => {
+              setDocument(uploadedDocument);
+              setSources([]);
+            }}
+          />
         </div>
 
         {/* CHAT WINDOW - Prend tout l'espace restant (delay-3) */}
         <div className="reveal delay-3" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-          <ChatWindow setSources={setSources} />
+          <ChatWindow document={document} setSources={setSources} />
         </div>
       </div>
 

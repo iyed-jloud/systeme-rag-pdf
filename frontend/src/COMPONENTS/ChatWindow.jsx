@@ -1,29 +1,53 @@
 import { useState } from 'react';
+import { api } from '../api';
 
-function ChatWindow({ setSources }) {
+function ChatWindow({ document, setSources }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     // Do nothing if the input is empty
-    if (!input.trim()) return;
+    const question = input.trim();
+    if (!question || isLoading) return;
+
+    if (!document?.doc_id) {
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        { sender: 'ia', text: 'Please upload a PDF before asking a question.' },
+      ]);
+      return;
+    }
 
     // Add user's question to the list
-    const newMessages = [...messages, { sender: 'user', text: input }];
+    const newMessages = [...messages, { sender: 'user', text: question }];
     setMessages(newMessages);
     setInput(""); // Clear input field
+    setIsLoading(true);
 
-    // Simulate AI response (to be replaced by real API call)
-    setTimeout(() => {
-      setMessages([...newMessages, 
-        { sender: 'ia', text: "This is a simulated response. The AI backend is not yet connected!" }
+    try {
+      const response = await api.askQuestion(document.doc_id, question);
+      setSources(response.sources || []);
+      setMessages([
+        ...newMessages,
+        { sender: 'ia', text: response.answer || 'No answer returned by the backend.' },
       ]);
-    }, 1000);
+    } catch (err) {
+      setMessages([
+        ...newMessages,
+        { sender: 'ia', text: err.message || 'Could not get an answer from the backend.' },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div style={styles.chatContainer}>
       <h3 style={styles.header}>💬 Ask your questions</h3>
+      {document?.filename && (
+        <p style={styles.documentStatus}>Current document: {document.filename}</p>
+      )}
       
       {/* Message display area */}
       <div style={styles.messageList}>
@@ -39,6 +63,14 @@ function ChatWindow({ setSources }) {
             </div>
           ))
         )}
+        {isLoading && (
+          <div style={styles.iaMsg}>
+            <strong style={{ display: 'block', fontSize: '0.8rem', marginBottom: '4px', opacity: 0.8 }}>
+              AI Assistant
+            </strong>
+            Thinking...
+          </div>
+        )}
       </div>
       
       {/* Input area */}
@@ -49,9 +81,12 @@ function ChatWindow({ setSources }) {
           onChange={(e) => setInput(e.target.value)}
           placeholder="What would you like to know about this document?"
           style={styles.input}
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+          disabled={isLoading}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
         />
-        <button onClick={handleSend} style={styles.button}>Send</button>
+        <button onClick={handleSend} style={styles.button} disabled={isLoading}>
+          {isLoading ? 'Sending...' : 'Send'}
+        </button>
       </div>
     </div>
   );
@@ -73,6 +108,11 @@ const styles = {
     margin: '0 0 15px 0',
     color: '#1e293b',
     fontSize: '1.2rem'
+  },
+  documentStatus: {
+    margin: '-8px 0 12px',
+    color: '#64748b',
+    fontSize: '0.85rem',
   },
   messageList: { 
     flex: 1, // La liste prend tout l'espace disponible
