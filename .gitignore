@@ -1,5 +1,6 @@
 vector_store/
-
+test_chunks.py
+sample.pdf
 
 
 # Byte-compiled / optimized / DLL files
