@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './App.css'; // Notre nouveau fichier CSS !
+import './App.css';
 import Dropzone from './COMPONENTS/Dropzone';
 import ChatWindow from './COMPONENTS/ChatWindow';
 import SourcePanel from './COMPONENTS/SourcePanel';
@@ -8,33 +8,38 @@ function App() {
   const [sources, setSources] = useState([]); 
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-main)' }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
       
-      {/* Main Column (Center) avec l'animation fade-in */}
-      <div className="fade-in" style={{ flex: 1, marginRight: '320px', padding: '50px 40px' }}>
+      {/* Main Content Area */}
+      <div style={{ 
+        flex: 1, 
+        marginRight: '320px', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        padding: '20px 40px',
+        height: '100vh' 
+      }}>
         
-        <header style={{ textAlign: 'center', marginBottom: '50px' }}>
-          <h1 style={{ 
-            fontSize: '3rem', 
-            color: 'var(--text-dark)', 
-            fontWeight: '700',
-            letterSpacing: '-1px',
-            marginBottom: '10px'
-          }}>
-            <span style={{ color: 'var(--primary)' }}>📄</span> Intelligent PDF Assistant
+        {/* TITRE - Apparaît en premier (delay-1) */}
+        <header className="reveal delay-1" style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h1 style={{ fontSize: '2rem', margin: 0, color: '#1e293b' }}>
+            <span style={{ color: '#007bff' }}>📄</span> Intelligent PDF Assistant
           </h1>
-          <p style={{ color: 'var(--text-light)', fontSize: '1.2rem', fontWeight: '500' }}>
-            RAG System (Retrieval-Augmented Generation)
-          </p>
+          <p style={{ color: '#64748b', fontSize: '0.9rem', margin: '5px 0' }}>RAG System</p>
         </header>
 
-        <div style={{ maxWidth: '850px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '30px' }}>
+        {/* DROPZONE - Apparaît en deuxième (delay-2) */}
+        <div className="reveal delay-2" style={{ marginBottom: '20px' }}>
           <Dropzone />
+        </div>
+
+        {/* CHAT WINDOW - Prend tout l'espace restant (delay-3) */}
+        <div className="reveal delay-3" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
           <ChatWindow setSources={setSources} />
         </div>
       </div>
 
-      {/* Source Panel (Right Side) */}
+      {/* SOURCE PANEL */}
       <SourcePanel sources={sources} />
 
     </div>
