@@ -7,47 +7,53 @@ import SourcePanel from './COMPONENTS/SourcePanel';
 function App() {
   const [sources, setSources] = useState([]);
   const [document, setDocument] = useState(null);
+  const [isSourcePanelOpen, setIsSourcePanelOpen] = useState(false);
+
+  const handleSourcesChange = (nextSources) => {
+    const safeSources = nextSources || [];
+    setSources(safeSources);
+  };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
-      
-      {/* Main Content Area */}
-      <div style={{ 
-        flex: 1, 
-        marginRight: '320px', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        padding: '20px 40px',
-        height: '100vh' 
-      }}>
-        
-        {/* TITRE - Apparaît en premier (delay-1) */}
-        <header className="reveal delay-1" style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <h1 style={{ fontSize: '2rem', margin: 0, color: '#1e293b' }}>
-            <span style={{ color: '#007bff' }}>📄</span> Intelligent PDF Assistant
-          </h1>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', margin: '5px 0' }}>RAG System</p>
+    <div className="app-shell">
+      <main className="workspace">
+        <header className="topbar">
+          <div>
+            <p className="eyebrow">Document intelligence</p>
+            <h1>Intelligent PDF Assistant</h1>
+          </div>
+
+          <button
+            className={`ghost-button ${sources.length > 0 ? 'has-sources' : ''}`}
+            type="button"
+            disabled={sources.length === 0}
+            onClick={() => setIsSourcePanelOpen((open) => !open)}
+          >
+            View references
+            {sources.length > 0 && <span>{sources.length}</span>}
+          </button>
         </header>
 
-        {/* DROPZONE - Apparaît en deuxième (delay-2) */}
-        <div className="reveal delay-2" style={{ marginBottom: '20px' }}>
+        <section className="upload-strip">
           <Dropzone
             onUploadComplete={(uploadedDocument) => {
               setDocument(uploadedDocument);
               setSources([]);
+              setIsSourcePanelOpen(false);
             }}
           />
-        </div>
+        </section>
 
-        {/* CHAT WINDOW - Prend tout l'espace restant (delay-3) */}
-        <div className="reveal delay-3" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-          <ChatWindow document={document} setSources={setSources} />
-        </div>
-      </div>
+        <section className="chat-stage">
+          <ChatWindow document={document} setSources={handleSourcesChange} />
+        </section>
+      </main>
 
-      {/* SOURCE PANEL */}
-      <SourcePanel sources={sources} />
-
+      <SourcePanel
+        sources={sources}
+        isOpen={isSourcePanelOpen}
+        onClose={() => setIsSourcePanelOpen(false)}
+      />
     </div>
   );
 }

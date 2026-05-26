@@ -1,0 +1,12 @@
+{
+  "name": "systeme-rag-pdf",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "cd backend && ..\\.venv\\Scripts\\python -m uvicorn main:app --reload --port 8000",
+    "dev:all": "start.bat",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint"
+  }
+}
