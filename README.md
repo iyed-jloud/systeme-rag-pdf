@@ -11,6 +11,13 @@ The app is built as a full-stack local development project with a React/Vite fro
 <img width="1868" height="984" alt="image" src="https://github.com/user-attachments/assets/d55645a5-313e-493e-9110-d7407ebc5e8b" />
 
 
+https://github.com/user-attachments/assets/5a55cc6a-b756-4108-a723-ece06744455b
+
+
+
+
+
+
 ## Features
 
 - Multi-PDF upload in a single chat session.
