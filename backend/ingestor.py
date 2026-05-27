@@ -9,6 +9,11 @@ from config import CHUNK_OVERLAP, CHUNK_SIZE, VECTOR_STORE_PATH
 from embedding_model import get_embedding_model
 
 
+def chunk_search_text(chunk: dict) -> str:
+    page = f" page {chunk['page']}" if chunk.get("page") else ""
+    return f"Source file: {chunk.get('source', 'Unknown PDF')}{page}\n{chunk['text']}"
+
+
 def _chunk_text(text: str) -> list[str]:
     chunks = []
     cursor = 0
@@ -93,7 +98,7 @@ def _write_store(session_id: str, chunks: list[dict]) -> None:
 
     model = get_embedding_model()
     embeddings = model.encode(
-        [chunk["text"] for chunk in chunks],
+        [chunk_search_text(chunk) for chunk in chunks],
         normalize_embeddings=True,
     )
 

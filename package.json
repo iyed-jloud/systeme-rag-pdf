@@ -2,7 +2,7 @@
   "name": "systeme-rag-pdf",
   "private": true,
   "scripts": {
-    "dev": "npm --prefix frontend run dev",
+    "dev": "start.bat",
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:backend": "cd backend && ..\\.venv\\Scripts\\python -m uvicorn main:app --reload --port 8000",
     "dev:all": "start.bat",

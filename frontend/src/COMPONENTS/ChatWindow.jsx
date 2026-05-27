@@ -18,23 +18,56 @@ function ChatWindow({ documents, sessionId, setSources }) {
       return;
     }
 
+    const history = messages.slice(-10).map((message) => ({
+      role: message.sender === 'user' ? 'user' : 'assistant',
+      content: message.text,
+    }));
     const newMessages = [...messages, { sender: 'user', text: question }];
-    setMessages(newMessages);
+    setMessages([...newMessages, { sender: 'ia', text: '' }]);
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await api.askQuestion(sessionId, question);
-      setSources(response.sources || []);
-      setMessages([
-        ...newMessages,
-        { sender: 'ia', text: response.answer || 'No answer returned by the backend.' },
-      ]);
+      let streamedAnswer = '';
+      await api.streamQuestion({
+        sessionId,
+        question,
+        history,
+        onSources: (nextSources) => setSources(nextSources || []),
+        onDelta: (delta) => {
+          streamedAnswer += delta;
+          setMessages((currentMessages) => {
+            const updatedMessages = [...currentMessages];
+            const lastIndex = updatedMessages.length - 1;
+            updatedMessages[lastIndex] = {
+              ...updatedMessages[lastIndex],
+              text: `${updatedMessages[lastIndex].text}${delta}`,
+            };
+            return updatedMessages;
+          });
+        },
+      });
+      if (!streamedAnswer.trim()) {
+        setMessages((currentMessages) => {
+          const updatedMessages = [...currentMessages];
+          const lastIndex = updatedMessages.length - 1;
+          updatedMessages[lastIndex] = {
+            ...updatedMessages[lastIndex],
+            text: 'No answer returned by the backend.',
+          };
+          return updatedMessages;
+        });
+      }
     } catch (err) {
-      setMessages([
-        ...newMessages,
-        { sender: 'ia', text: err.message || 'Could not get an answer from the backend.' },
-      ]);
+      setMessages((currentMessages) => {
+        const updatedMessages = [...currentMessages];
+        const lastIndex = updatedMessages.length - 1;
+        updatedMessages[lastIndex] = {
+          sender: 'ia',
+          text: err.message || 'Could not get an answer from the backend.',
+        };
+        return updatedMessages;
+      });
     } finally {
       setIsLoading(false);
     }
@@ -72,10 +105,12 @@ function ChatWindow({ documents, sessionId, setSources }) {
         )}
 
         {isLoading && (
-          <article className="message from-assistant">
-            <strong>Assistant</strong>
-            <p>Thinking...</p>
-          </article>
+          messages[messages.length - 1]?.sender !== 'ia' && (
+            <article className="message from-assistant">
+              <strong>Assistant</strong>
+              <p>Thinking...</p>
+            </article>
+          )
         )}
       </div>
 
@@ -84,7 +119,7 @@ function ChatWindow({ documents, sessionId, setSources }) {
           type="text"
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder="Ask a question about this document"
+          placeholder="Ask anything "
           disabled={isLoading}
           onKeyDown={(event) => event.key === 'Enter' && handleSend()}
         />

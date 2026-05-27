@@ -5,7 +5,7 @@ start "Backend" cmd /k "cd backend && call ..\.venv\Scripts\activate && uvicorn 
 
 timeout /t 3 >nul
 
-start "Frontend" cmd /k "npm run dev"
+start "Frontend" cmd /k "npm run dev:frontend"
 
 echo Both servers started.
 echo Backend: http://localhost:8000

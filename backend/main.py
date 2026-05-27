@@ -1,6 +1,9 @@
+import json
+
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import uuid
 
@@ -8,7 +11,7 @@ import os
 from config import GROQ_MODEL, MAX_PDFS_PER_SESSION, MAX_UPLOAD_BYTES, VECTOR_STORE_PATH
 from ingestor import ingest, list_session_documents, remove_document
 from retriever import retrieve
-from generator import generate
+from generator import generate, stream_generate
 
 load_dotenv()
 app = FastAPI()
@@ -17,6 +20,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 class QueryRequest(BaseModel):
     question : str
     session_id: str
+    history: list[dict] = Field(default_factory=list)
 
 def validate_session_id(session_id: str) -> None:
     try:
@@ -90,8 +94,24 @@ async def query(req : QueryRequest):
     validate_session_id(req.session_id)
 
     chunks = retrieve(req.question, req.session_id)
-    answer = await generate(req.question, chunks)
+    answer = await generate(req.question, chunks, req.history)
     return {"answer": answer, "sources": chunks}
+
+@app.post("/query/stream")
+async def stream_query(req : QueryRequest):
+    validate_session_id(req.session_id)
+    chunks = retrieve(req.question, req.session_id)
+
+    async def event_stream():
+        yield json.dumps({"type": "sources", "sources": chunks}) + "\n"
+        try:
+            async for delta in stream_generate(req.question, chunks, req.history):
+                yield json.dumps({"type": "delta", "content": delta}) + "\n"
+            yield json.dumps({"type": "done"}) + "\n"
+        except HTTPException as exc:
+            yield json.dumps({"type": "error", "message": exc.detail}) + "\n"
+
+    return StreamingResponse(event_stream(), media_type="application/x-ndjson")
 
 @app.get("/documents")
 def list_documents():
