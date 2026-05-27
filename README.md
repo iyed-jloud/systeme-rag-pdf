@@ -7,15 +7,9 @@ An AI-powered RAG application for chatting with one or more PDF documents. Uploa
 The app is built as a full-stack local development project with a React/Vite frontend and a FastAPI backend. It uses FAISS for vector search, Sentence Transformers for embeddings, PyMuPDF for PDF extraction, and Groq for LLM responses.
 
 ## Demo Media
+<img width="1868" height="984" alt="image" src="https://github.com/user-attachments/assets/6921e440-1111-4760-b935-f3241ca33cbd" />
+<img width="1868" height="984" alt="image" src="https://github.com/user-attachments/assets/d55645a5-313e-493e-9110-d7407ebc5e8b" />
 
-Screenshots and a short video walkthrough will be added later.
-
-Suggested assets:
-
-- `docs/screenshots/upload-and-chat.png`
-- `docs/screenshots/references-panel.png`
-- `docs/screenshots/multi-pdf-session.png`
-- `docs/demo/demo-video.mp4`
 
 ## Features
 
