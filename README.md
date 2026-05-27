@@ -70,7 +70,7 @@ systeme-rag-pdf/
     vector_store/          # Local generated FAISS indexes and chunk metadata
   frontend/
     src/
-      COMPONENTS/
+      components/
         ChatWindow.jsx
         Dropzone.jsx
         SourcePanel.jsx

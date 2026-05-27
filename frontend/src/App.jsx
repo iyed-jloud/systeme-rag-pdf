@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import './App.css';
-import Dropzone from './COMPONENTS/Dropzone';
-import ChatWindow from './COMPONENTS/ChatWindow';
-import SourcePanel from './COMPONENTS/SourcePanel';
+import Dropzone from './components/Dropzone';
+import ChatWindow from './components/ChatWindow';
+import SourcePanel from './components/SourcePanel';
 
 function App() {
   const [sources, setSources] = useState([]);
