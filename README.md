@@ -1,6 +1,6 @@
 # Intelligent PDF Assistant
 
-## Made By : Iyed Douggaz 2DAD & Iyed Jloud 2EAN
+## Built By : Iyed Douggaz 2DAD & Iyed Jloud 2EAN
 
 An AI-powered RAG application for chatting with one or more PDF documents. Upload PDFs, ask questions in natural language, receive streamed answers, and inspect the exact source excerpts used by the assistant.
 
