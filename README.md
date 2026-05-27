@@ -1,5 +1,7 @@
 # Intelligent PDF Assistant
 
+## Made By : Iyed Douggaz 2DAD & Iyed Jloud 2EAN
+
 An AI-powered RAG application for chatting with one or more PDF documents. Upload PDFs, ask questions in natural language, receive streamed answers, and inspect the exact source excerpts used by the assistant.
 
 The app is built as a full-stack local development project with a React/Vite frontend and a FastAPI backend. It uses FAISS for vector search, Sentence Transformers for embeddings, PyMuPDF for PDF extraction, and Groq for LLM responses.
@@ -393,8 +395,7 @@ Stop the old backend process or change the Uvicorn port in the root scripts.
 - Add PDF page previews.
 - Add authentication.
 - Add production deployment configuration.
-- Add screenshot and video demo assets.
 
 ## License
 
-No license has been specified yet.
+This project is open-source and available under the MIT License.
